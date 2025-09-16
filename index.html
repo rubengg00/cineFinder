@@ -201,8 +201,22 @@
             border-radius: 0 0 8px 8px;
         }
         .episodes-list.expanded {
-            max-height: 2000px; /* Adjust as needed */
+            max-height: 60vh; /* Limit height to 60% of the viewport */
+            overflow-y: auto; /* Enable vertical scrolling for long lists */
             transition: max-height 0.5s ease-in;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #ddd;
+        }
+        .episodes-list.expanded::-webkit-scrollbar {
+            width: 8px;
+        }
+        .episodes-list.expanded::-webkit-scrollbar-track {
+            background: #ddd;
+            border-radius: 4px;
+        }
+        .episodes-list.expanded::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 4px;
         }
         .episode-item {
             display: flex;
@@ -235,6 +249,62 @@
             line-height: 1.6;
             margin: 0;
         }
+        
+        /* Recommendations Section */
+        .recommendations-container { margin-top: 3rem; }
+        .recommendations-carousel { 
+            display: flex; 
+            gap: 1.5rem; 
+            overflow-x: auto; 
+            padding-bottom: 1rem; 
+            scrollbar-width: thin; 
+            scrollbar-color: var(--primary) #ddd; 
+        }
+        .recommendations-carousel::-webkit-scrollbar { height: 8px; }
+        .recommendations-carousel::-webkit-scrollbar-track { background: #ddd; border-radius: 4px;}
+        .recommendations-carousel::-webkit-scrollbar-thumb { background-color: var(--primary); border-radius: 4px; }
+        .recommendation-card { 
+            width: 200px;
+            flex-shrink: 0; 
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+        }
+        .recommendation-card img { 
+            width: 100%; 
+            display: block; 
+            aspect-ratio: 2/3; 
+            object-fit: cover; 
+            background-color: #f0f0f0; 
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .recommendation-info { 
+            padding: 0.5rem 0.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .recommendation-title { 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            margin: 0; 
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .recommendation-score { 
+            font-size: 0.9rem; 
+            color: #333;
+            font-weight: bold;
+            margin: 0;
+            white-space: nowrap;
+        }
+
 
         @media (max-width: 900px) {
             .detail-view-overlay { padding: 4rem 1rem 2rem 1rem; align-items: flex-start; }

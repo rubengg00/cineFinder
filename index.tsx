@@ -14,6 +14,7 @@ export interface SearchResult {
     title?: string;
     name?: string;
     poster_path: string | null;
+    vote_average?: number;
 }
 export interface StreamingProvider {
     provider_id: number;
@@ -126,6 +127,15 @@ export const getSeasonDetails = async (tvId: number, seasonNumber: number): Prom
     return apiFetch(`/tv/${tvId}/season/${seasonNumber}`);
 };
 
+export const getRecommendations = async (id: number, type: 'movie' | 'tv'): Promise<SearchResult[]> => {
+    const data = await apiFetch(`/${type}/${id}/recommendations`);
+    return data.results.map((item: any) => ({
+        ...item,
+        media_type: type,
+    })).filter((item: SearchResult) => item.poster_path).slice(0, 12);
+};
+
+
 // --- Components ---
 
 const getFlagUrl = (countryCode: string) => `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
@@ -189,14 +199,17 @@ const CastCarousel: FC<{ cast: Cast[] }> = ({ cast }) => (
     </div>
 );
 
-const MediaDetailsView: FC<{ media: MediaDetails; onBack: () => void }> = ({ media, onBack }) => {
+const MediaDetailsView: FC<{ media: MediaDetails; onBack: () => void; onSelectMedia: (media: { id: number; type: 'movie' | 'tv' }) => void; }> = ({ media, onBack, onSelectMedia }) => {
     const [seasons, setSeasons] = useState<Season[]>([]);
     const [isLoadingSeasons, setIsLoadingSeasons] = useState(false);
     const [expandedSeasons, setExpandedSeasons] = useState<Set<number>>(new Set());
+    const [recommendations, setRecommendations] = useState<SearchResult[]>([]);
+    const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
 
     useEffect(() => {
-        if (media.media_type === 'tv' && media.seasons) {
-            const fetchSeasons = async () => {
+        const fetchAllDetails = async () => {
+            // Fetch seasons for TV shows
+            if (media.media_type === 'tv' && media.seasons) {
                 setIsLoadingSeasons(true);
                 try {
                     const seasonPromises = media.seasons!
@@ -209,9 +222,20 @@ const MediaDetailsView: FC<{ media: MediaDetails; onBack: () => void }> = ({ med
                 } finally {
                     setIsLoadingSeasons(false);
                 }
-            };
-            fetchSeasons();
-        }
+            }
+
+            // Fetch recommendations
+            setIsLoadingRecommendations(true);
+            try {
+                const recs = await getRecommendations(media.id, media.media_type);
+                setRecommendations(recs);
+            } catch (error) {
+                console.error("Failed to fetch recommendations", error);
+            } finally {
+                setIsLoadingRecommendations(false);
+            }
+        };
+        fetchAllDetails();
     }, [media]);
 
     const toggleSeason = (seasonId: number) => {
@@ -338,6 +362,25 @@ const MediaDetailsView: FC<{ media: MediaDetails; onBack: () => void }> = ({ med
                             </>}
                         </div>
                     </div>
+
+                    {recommendations.length > 0 && (
+                        <div className="recommendations-container">
+                            <h2>Recomendaciones</h2>
+                            <div className="recommendations-carousel">
+                                {recommendations.map(rec => (
+                                    <div key={rec.id} className="recommendation-card" onClick={() => onSelectMedia({ id: rec.id, type: rec.media_type })} role="button" tabIndex={0}>
+                                        <img src={getTMDbImageUrl(rec.poster_path, 'w300')} alt={rec.title || rec.name} />
+                                        <div className="recommendation-info">
+                                            <p className="recommendation-title" title={rec.title || rec.name}>{rec.title || rec.name}</p>
+                                            {rec.vote_average && rec.vote_average > 0 ? (
+                                                <p className="recommendation-score">{Math.round(rec.vote_average * 10)}%</p>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </>
@@ -489,7 +532,7 @@ const App: FC = () => {
                     )}
                 </>
             ) : detailedMedia ? (
-                <MediaDetailsView media={detailedMedia} onBack={handleBack} />
+                <MediaDetailsView media={detailedMedia} onBack={handleBack} onSelectMedia={handleSelectMedia} />
             ) : (
                 isLoading ? <div className="loader">Cargando detalles...</div> : 
                 <div className="message error">
