@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cine-Finder</title>
+    <link rel="icon" type="image/svg+xml" href="/public/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -33,9 +34,11 @@
         }
         .app-container { width: 100%; max-width: 1400px; padding: 1rem; box-sizing: border-box; }
         .full-width-container { width: 100%; max-width: none; padding: 0; }
-        .header { text-align: center; margin-bottom: 2rem; }
+        .header { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; margin-bottom: 2rem; }
+        .header-title-container { display: flex; align-items: center; gap: 1rem; }
+        .app-icon { width: 40px; height: 40px; color: var(--primary); }
         .header h1 { font-size: 2.5rem; font-weight: 700; color: var(--primary); margin: 0; }
-        .header p { color: var(--on-surface-secondary); font-size: 1.1rem; }
+        .header p { color: var(--on-surface-secondary); font-size: 1.1rem; margin: 0; }
         .search-form { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
         .search-input { flex-grow: 1; padding: 0.75rem 1rem; font-size: 1rem; background-color: var(--surface); border: 1px solid #333; border-radius: 8px; color: var(--on-surface); transition: border-color 0.2s, box-shadow 0.2s; }
         .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(3, 218, 198, 0.3); }
